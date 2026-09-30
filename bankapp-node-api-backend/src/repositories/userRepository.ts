@@ -1,36 +1,36 @@
-import UserModel, { type UserRecord } from "../models/user";
-import { nextNumericId } from "../models/counter";
+import UserModel, { toUserRecord, type UserRecord } from "../models/user";
 
 class UserRepository {
   async findAll(): Promise<UserRecord[]> {
-    return await UserModel.find().select("-_id").sort({ user_id: 1 }).lean().exec() as UserRecord[];
+    const users = await UserModel.find().sort({ _id: 1 }).lean().exec();
+    return users.map(toUserRecord);
   }
 
-  async findById(userId: string | number): Promise<UserRecord | null> {
-    return await UserModel.findOne({ user_id: Number(userId) }).select("-_id").lean().exec() as UserRecord | null;
+  async findById(userId: string): Promise<UserRecord | null> {
+    const user = await UserModel.findById(userId).lean().exec();
+    return user ? toUserRecord(user) : null;
   }
 
   async save(userData: { name: string; email: string }): Promise<UserRecord> {
     const user = await UserModel.create({
-      user_id: await nextNumericId("user"),
       name: userData.name,
       email: userData.email
     });
-    const { _id, ...userRecord } = user.toObject();
-    return userRecord;
+    return toUserRecord(user.toObject());
   }
 
-  async update(userId: string | number, userData: { name?: string; email?: string }): Promise<UserRecord | null> {
-    return await UserModel.findOneAndUpdate(
-      { user_id: Number(userId) },
+  async update(userId: string, userData: { name?: string; email?: string }): Promise<UserRecord | null> {
+    const user = await UserModel.findByIdAndUpdate(
+      userId,
       { $set: userData },
       { new: true, runValidators: true }
-    ).select("-_id").lean().exec() as UserRecord | null;
+    ).lean().exec();
+    return user ? toUserRecord(user) : null;
   }
 
-  async delete(userId: string | number): Promise<UserRecord | null> {
-    return await UserModel.findOneAndDelete({ user_id: Number(userId) })
-      .select("-_id").lean().exec() as UserRecord | null;
+  async delete(userId: string): Promise<UserRecord | null> {
+    const user = await UserModel.findByIdAndDelete(userId).lean().exec();
+    return user ? toUserRecord(user) : null;
   }
 }
 

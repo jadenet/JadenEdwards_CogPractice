@@ -32,7 +32,7 @@ const swaggerSpec = swaggerJsdoc({
           type: "object",
           required: ["userId", "accountType"],
           properties: {
-            userId: { type: "integer", example: 1 },
+            userId: { type: "string", example: "66f4b8c12a6e52a1d08b3291" },
             accountType: { type: "string", example: "CHECKING" },
             balance: { type: "number", format: "float", default: 0, example: 100 },
           },
@@ -41,7 +41,7 @@ const swaggerSpec = swaggerJsdoc({
           type: "object",
           minProperties: 1,
           properties: {
-            userId: { type: "integer", example: 1 },
+            userId: { type: "string", example: "66f4b8c12a6e52a1d08b3291" },
             accountType: { type: "string", minLength: 1, example: "SAVINGS" },
           },
         },
@@ -56,7 +56,7 @@ const swaggerSpec = swaggerJsdoc({
           type: "object",
           required: ["accountId", "userName", "balance"],
           properties: {
-            accountId: { type: "integer", example: 1 },
+            accountId: { type: "string", example: "66f4b8c12a6e52a1d08b3292" },
             userName: { type: "string", example: "Alex Ray" },
             balance: { type: "number", format: "float", example: 125.5 },
           },
@@ -74,7 +74,7 @@ const swaggerSpec = swaggerJsdoc({
           type: "object",
           required: ["user_id", "name", "email", "created_at"],
           properties: {
-            user_id: { type: "integer", example: 1 },
+            user_id: { type: "string", example: "66f4b8c12a6e52a1d08b3291" },
             name: { type: "string", example: "Alex Ray" },
             email: { type: "string", format: "email", example: "alex@example.com" },
             created_at: { type: "string", format: "date-time" },

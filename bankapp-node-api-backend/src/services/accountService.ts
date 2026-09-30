@@ -4,7 +4,7 @@ import txnRepo from "../repositories/transactionRepository";
 import userRepo from "../repositories/userRepository";
 
 class AccountService {
-  async createAccount(userId: string | number, accountType: string, balance: number) {
+  async createAccount(userId: string, accountType: string, balance: number) {
     const user = await userRepo.findById(userId);
     if (!user) {
       throw new Error("User not found");
@@ -23,7 +23,7 @@ class AccountService {
     };
   }
 
-  async getAccount(accountId: string | number) {
+  async getAccount(accountId: string) {
     const account = await accountRepo.findById(accountId);
     if (!account) {
       throw new Error("Account not found");
@@ -39,13 +39,13 @@ class AccountService {
     };
   }
 
-  async editAccount(accountId: string | number, accountData: { userId?: string | number; accountType?: string }) {
+  async editAccount(accountId: string, accountData: { userId?: string; accountType?: string }) {
     const account = await accountRepo.findById(accountId);
     if (!account) {
       throw new Error("Account not found");
     }
 
-    let userId: number | undefined;
+    let userId: string | undefined;
     if (accountData.userId !== undefined) {
       const user = await userRepo.findById(accountData.userId);
       if (!user) {
@@ -61,7 +61,7 @@ class AccountService {
     return this.getAccount(accountId);
   }
 
-  async deleteAccount(accountId: string | number) {
+  async deleteAccount(accountId: string) {
     const accountResponse = await this.getAccount(accountId);
     const session = await mongoose.startSession();
     try {
@@ -75,15 +75,15 @@ class AccountService {
     return accountResponse;
   }
 
-  deposit(accountId: string | number, amount: number | string) {
+  deposit(accountId: string, amount: number | string) {
     return this.recordMoneyMovement(accountId, amount, "DEPOSIT");
   }
 
-  withdraw(accountId: string | number, amount: number | string) {
+  withdraw(accountId: string, amount: number | string) {
     return this.recordMoneyMovement(accountId, amount, "WITHDRAW");
   }
 
-  private async recordMoneyMovement(accountId: string | number, amount: number | string, type: "DEPOSIT" | "WITHDRAW") {
+  private async recordMoneyMovement(accountId: string, amount: number | string, type: "DEPOSIT" | "WITHDRAW") {
     const parsedAmount = Number(amount);
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
       throw new Error(`${type === "DEPOSIT" ? "Deposit" : "Withdrawal"} amount must be positive`);
@@ -113,7 +113,7 @@ class AccountService {
     return this.getAccount(accountId);
   }
 
-  async getTransactions(accountId: string | number) {
+  async getTransactions(accountId: string) {
     const account = await accountRepo.findById(accountId);
     if (!account) {
       throw new Error("Account not found");
