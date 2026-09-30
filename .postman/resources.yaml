@@ -1,0 +1,5 @@
+workspace:
+  id: 7a7b34ba-1877-4cb3-88cd-ec717b6f0599
+localResources:
+  specs:
+    - ../postman/specs/BankApp RestAPI/BankApp RestAPI.json

@@ -21,30 +21,30 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "An unexpected error occurred";
 }
 
-export function createAccount(req: Request<ParamsDictionary, unknown, CreateAccountBody>, res: Response) {
+export async function createAccount(req: Request<ParamsDictionary, unknown, CreateAccountBody>, res: Response) {
   try {
     const { userId, accountType, balance } = req.body;
     if (!userId || !accountType) {
       return res.status(400).json({ error: "userId and accountType are required" });
     }
-    const result = accountService.createAccount(userId, accountType, balance);
+    const result = await accountService.createAccount(userId, accountType, balance);
     return res.status(201).json(result);
   } catch (err) {
     return res.status(400).json({ error: getErrorMessage(err) });
   }
 };
 
-export function getAccount(req: Request<{ id: string }>, res: Response) {
+export async function getAccount(req: Request<{ id: string }>, res: Response) {
   try {
     const { id } = req.params;
-    const account = accountService.getAccount(id);
+    const account = await accountService.getAccount(id);
     return res.status(200).json(account);
   } catch (err) {
     return res.status(404).json({ error: getErrorMessage(err) });
   }
 };
 
-export function editAccount(req: Request<{ id: string }, unknown, UpdateAccountBody>, res: Response) {
+export async function editAccount(req: Request<{ id: string }, unknown, UpdateAccountBody>, res: Response) {
   const { userId, accountType } = req.body;
   if (userId === undefined && accountType === undefined) {
     return res.status(400).json({ error: "At least one of userId or accountType is required" });
@@ -58,7 +58,7 @@ export function editAccount(req: Request<{ id: string }, unknown, UpdateAccountB
   }
 
   try {
-    const updatedAccount = accountService.editAccount(req.params.id, {
+    const updatedAccount = await accountService.editAccount(req.params.id, {
       ...(userId !== undefined ? { userId } : {}),
       ...(accountType !== undefined ? { accountType: accountType.trim() } : {}),
     });
@@ -68,40 +68,40 @@ export function editAccount(req: Request<{ id: string }, unknown, UpdateAccountB
   }
 }
 
-export function deleteAccount(req: Request<{ id: string }>, res: Response) {
+export async function deleteAccount(req: Request<{ id: string }>, res: Response) {
   try {
-    return res.status(200).json(accountService.deleteAccount(req.params.id));
+    return res.status(200).json(await accountService.deleteAccount(req.params.id));
   } catch (error) {
     return res.status(404).json({ error: getErrorMessage(error) });
   }
 }
 
-export function deposit(req: Request<{ id: string }, unknown, AmountBody>, res: Response) {
+export async function deposit(req: Request<{ id: string }, unknown, AmountBody>, res: Response) {
   try {
     const { id } = req.params;
     const { amount } = req.body;
-    const updatedAccount = accountService.deposit(id, amount);
+    const updatedAccount = await accountService.deposit(id, amount);
     return res.status(200).json(updatedAccount);
   } catch (err) {
     return res.status(400).json({ error: getErrorMessage(err) });
   }
 };
 
-export function withdraw(req: Request<{ id: string }, unknown, AmountBody>, res: Response) {
+export async function withdraw(req: Request<{ id: string }, unknown, AmountBody>, res: Response) {
   try {
     const { id } = req.params;
     const { amount } = req.body;
-    const updatedAccount = accountService.withdraw(id, amount);
+    const updatedAccount = await accountService.withdraw(id, amount);
     return res.status(200).json(updatedAccount);
   } catch (err) {
     return res.status(400).json({ error: getErrorMessage(err) });
   }
 };
 
-export function getTransactions(req: Request<{ id: string }>, res: Response) {
+export async function getTransactions(req: Request<{ id: string }>, res: Response) {
   try {
     const { id } = req.params;
-    const transactions = accountService.getTransactions(id);
+    const transactions = await accountService.getTransactions(id);
     return res.status(200).json(transactions);
   } catch (err) {
     return res.status(404).json({ error: getErrorMessage(err) });

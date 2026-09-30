@@ -1,46 +1,36 @@
-import store from "../models/inMemoryStore";
-import User from "../models/user";
+import UserModel, { type UserRecord } from "../models/user";
+import { nextNumericId } from "../models/counter";
 
 class UserRepository {
-  findAll(): User[] {
-    return store.users;
+  async findAll(): Promise<UserRecord[]> {
+    return await UserModel.find().select("-_id").sort({ user_id: 1 }).lean().exec() as UserRecord[];
   }
 
-  findById(userId: string | number): User | null {
-    return store.users.find(user => user.user_id === Number(userId)) || null;
+  async findById(userId: string | number): Promise<UserRecord | null> {
+    return await UserModel.findOne({ user_id: Number(userId) }).select("-_id").lean().exec() as UserRecord | null;
   }
 
-  save(userData: { name: string; email: string }): User {
-    const user = new User({
-      user_id: store.getNextUserId(),
+  async save(userData: { name: string; email: string }): Promise<UserRecord> {
+    const user = await UserModel.create({
+      user_id: await nextNumericId("user"),
       name: userData.name,
       email: userData.email
     });
-    store.users.push(user);
-    return user;
+    const { _id, ...userRecord } = user.toObject();
+    return userRecord;
   }
 
-  update(userId: string | number, userData: { name?: string; email?: string }): User | null {
-    const user = this.findById(userId);
-    if (!user) {
-      return null;
-    }
-
-    if (userData.name !== undefined) {
-      user.name = userData.name;
-    }
-    if (userData.email !== undefined) {
-      user.email = userData.email;
-    }
-    return user;
+  async update(userId: string | number, userData: { name?: string; email?: string }): Promise<UserRecord | null> {
+    return await UserModel.findOneAndUpdate(
+      { user_id: Number(userId) },
+      { $set: userData },
+      { new: true, runValidators: true }
+    ).select("-_id").lean().exec() as UserRecord | null;
   }
 
-  delete(userId: string | number): User | null {
-    const index = store.users.findIndex(user => user.user_id === Number(userId));
-    if (index === -1) {
-      return null;
-    }
-    return store.users.splice(index, 1)[0];
+  async delete(userId: string | number): Promise<UserRecord | null> {
+    return await UserModel.findOneAndDelete({ user_id: Number(userId) })
+      .select("-_id").lean().exec() as UserRecord | null;
   }
 }
 

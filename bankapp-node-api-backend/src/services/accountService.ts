@@ -1,15 +1,16 @@
+import mongoose from "mongoose";
 import accountRepo from "../repositories/accountRepository";
 import txnRepo from "../repositories/transactionRepository";
 import userRepo from "../repositories/userRepository";
 
 class AccountService {
-  createAccount(userId: string | number, accountType: string, balance: number) {
-    const user = userRepo.findById(userId);
+  async createAccount(userId: string | number, accountType: string, balance: number) {
+    const user = await userRepo.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
 
-    const createdAccount = accountRepo.save({
+    const createdAccount = await accountRepo.save({
       userId: user.user_id,
       accountType: accountType,
       balance: balance
@@ -22,13 +23,13 @@ class AccountService {
     };
   }
 
-  getAccount(accountId: string | number) {
-    const account = accountRepo.findById(accountId);
+  async getAccount(accountId: string | number) {
+    const account = await accountRepo.findById(accountId);
     if (!account) {
       throw new Error("Account not found");
     }
 
-    const user = userRepo.findById(account.user_id);
+    const user = await userRepo.findById(account.user_id);
 
     // Formatted to match expected Account Response
     return {
@@ -38,96 +39,87 @@ class AccountService {
     };
   }
 
-  editAccount(accountId: string | number, accountData: { userId?: string | number; accountType?: string }) {
-    const account = accountRepo.findById(accountId);
+  async editAccount(accountId: string | number, accountData: { userId?: string | number; accountType?: string }) {
+    const account = await accountRepo.findById(accountId);
     if (!account) {
       throw new Error("Account not found");
     }
 
     let userId: number | undefined;
     if (accountData.userId !== undefined) {
-      const user = userRepo.findById(accountData.userId);
+      const user = await userRepo.findById(accountData.userId);
       if (!user) {
         throw new Error("User not found");
       }
       userId = user.user_id;
     }
 
-    accountRepo.update(accountId, {
+    await accountRepo.update(accountId, {
       ...(userId !== undefined ? { userId } : {}),
       ...(accountData.accountType !== undefined ? { accountType: accountData.accountType } : {}),
     });
     return this.getAccount(accountId);
   }
 
-  deleteAccount(accountId: string | number) {
-    const accountResponse = this.getAccount(accountId);
-    accountRepo.delete(accountId);
-    txnRepo.deleteByAccountId(accountId);
+  async deleteAccount(accountId: string | number) {
+    const accountResponse = await this.getAccount(accountId);
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        await accountRepo.delete(accountId, session);
+        await txnRepo.deleteByAccountId(accountId, session);
+      });
+    } finally {
+      await session.endSession();
+    }
     return accountResponse;
   }
 
   deposit(accountId: string | number, amount: number | string) {
-    const numAmount = Number(amount);
-    // Rule: Deposit amount must be positive
-    if (isNaN(numAmount) || numAmount <= 0) {
-      throw new Error("Deposit amount must be positive");
-    }
-
-    const account = accountRepo.findById(accountId);
-    if (!account) {
-      throw new Error("Account not found");
-    }
-
-    const newBalance = account.balance + numAmount;
-    accountRepo.updateBalance(accountId, newBalance);
-
-    // Rule: Maintain transaction record[cite: 1]
-    txnRepo.save({
-      accountId: account.account_id,
-      type: "DEPOSIT",
-      amount: numAmount
-    });
-
-    return this.getAccount(accountId);
+    return this.recordMoneyMovement(accountId, amount, "DEPOSIT");
   }
 
   withdraw(accountId: string | number, amount: number | string) {
-    const numAmount = Number(amount);
-    if (isNaN(numAmount) || numAmount <= 0) {
-      throw new Error("Withdrawal amount must be positive");
+    return this.recordMoneyMovement(accountId, amount, "WITHDRAW");
+  }
+
+  private async recordMoneyMovement(accountId: string | number, amount: number | string, type: "DEPOSIT" | "WITHDRAW") {
+    const parsedAmount = Number(amount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
+      throw new Error(`${type === "DEPOSIT" ? "Deposit" : "Withdrawal"} amount must be positive`);
+    }
+    const roundedAmount = Math.round(parsedAmount * 100) / 100;
+    if (roundedAmount <= 0) {
+      throw new Error(`${type === "DEPOSIT" ? "Deposit" : "Withdrawal"} amount must be positive`);
     }
 
-    const account = accountRepo.findById(accountId);
-    if (!account) {
-      throw new Error("Account not found");
+    const delta = type === "DEPOSIT" ? roundedAmount : -roundedAmount;
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const account = await accountRepo.adjustBalance(accountId, delta, session);
+        if (!account) {
+          const existing = await accountRepo.findById(accountId, session);
+          if (!existing) {
+            throw new Error("Account not found");
+          }
+          throw new Error("Insufficient funds");
+        }
+        await txnRepo.save({ accountId: account.account_id, type, amount: roundedAmount }, session);
+      });
+    } finally {
+      await session.endSession();
     }
-
-    // Rule: Cannot withdraw more than balance[cite: 1]
-    if (account.balance < numAmount) {
-      throw new Error("Insufficient funds");
-    }
-
-    const newBalance = account.balance - numAmount;
-    accountRepo.updateBalance(accountId, newBalance);
-
-    // Rule: Maintain transaction record[cite: 1]
-    txnRepo.save({
-      accountId: account.account_id,
-      type: "WITHDRAW",
-      amount: numAmount
-    });
-
     return this.getAccount(accountId);
   }
 
-  getTransactions(accountId: string | number) {
-    const account = accountRepo.findById(accountId);
+  async getTransactions(accountId: string | number) {
+    const account = await accountRepo.findById(accountId);
     if (!account) {
       throw new Error("Account not found");
     }
 
-    const history = txnRepo.findByAccountId(accountId);
+    const history = await txnRepo.findByAccountId(accountId);
 
     // Formatted to match expected Transaction Response[cite: 1]
     return history.map(t => ({

@@ -11,27 +11,27 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "An unexpected error occurred";
 }
 
-export function getAllUsers(_req: Request, res: Response) {
-  return res.status(200).json(userService.getAllUsers());
+export async function getAllUsers(_req: Request, res: Response) {
+  return res.status(200).json(await userService.getAllUsers());
 }
 
-export function getUserById(req: Request<{ id: string }>, res: Response) {
+export async function getUserById(req: Request<{ id: string }>, res: Response) {
   try {
-    return res.status(200).json(userService.getUserById(req.params.id));
+    return res.status(200).json(await userService.getUserById(req.params.id));
   } catch (error) {
     return res.status(404).json({ error: getErrorMessage(error) });
   }
 }
 
-export function addUser(req: Request<ParamsDictionary, unknown, UserBody>, res: Response) {
+export async function addUser(req: Request<ParamsDictionary, unknown, UserBody>, res: Response) {
   const { name, email } = req.body;
   if (typeof name !== "string" || !name.trim() || typeof email !== "string" || !email.trim()) {
     return res.status(400).json({ error: "name and email are required" });
   }
-  return res.status(201).json(userService.addUser({ name: name.trim(), email: email.trim() }));
+  return res.status(201).json(await userService.addUser({ name: name.trim(), email: email.trim() }));
 }
 
-export function editUser(req: Request<{ id: string }, unknown, UserBody>, res: Response) {
+export async function editUser(req: Request<{ id: string }, unknown, UserBody>, res: Response) {
   const { name, email } = req.body;
   if (name === undefined && email === undefined) {
     return res.status(400).json({ error: "At least one of name or email is required" });
@@ -42,7 +42,7 @@ export function editUser(req: Request<{ id: string }, unknown, UserBody>, res: R
   }
 
   try {
-    return res.status(200).json(userService.editUser(req.params.id, {
+    return res.status(200).json(await userService.editUser(req.params.id, {
       ...(name !== undefined ? { name: name.trim() } : {}),
       ...(email !== undefined ? { email: email.trim() } : {})
     }));
@@ -51,9 +51,9 @@ export function editUser(req: Request<{ id: string }, unknown, UserBody>, res: R
   }
 }
 
-export function deleteUser(req: Request<{ id: string }>, res: Response) {
+export async function deleteUser(req: Request<{ id: string }>, res: Response) {
   try {
-    return res.status(200).json(userService.deleteUser(req.params.id));
+    return res.status(200).json(await userService.deleteUser(req.params.id));
   } catch (error) {
     return res.status(404).json({ error: getErrorMessage(error) });
   }

@@ -1,51 +1,50 @@
-import Account from "../models/account";
-import store from "../models/inMemoryStore";
+import AccountModel, { type AccountRecord } from "../models/account";
+import { nextNumericId } from "../models/counter";
+import type { ClientSession } from "mongoose";
 
 class AccountRepository {
-  findById(accountId: string | number): Account | null {
-    return store.accounts.find(a => a.account_id === Number(accountId)) || null;
+  async findById(accountId: string | number, session?: ClientSession): Promise<AccountRecord | null> {
+    const query = AccountModel.findOne({ account_id: Number(accountId) }).select("-_id");
+    if (session) query.session(session);
+    return await query.lean().exec() as AccountRecord | null;
   }
 
-  save(accountData: { userId: number; accountType: string; balance?: number }): Account {
-    const newAccount = new Account({
-      account_id: store.getNextAccountId(),
+  async save(accountData: { userId: number; accountType: string; balance?: number }): Promise<AccountRecord> {
+    const newAccount = await AccountModel.create({
+      account_id: await nextNumericId("account"),
       user_id: accountData.userId,
-      balance: accountData.balance || 0.00,
+      balance: accountData.balance ?? 0,
       account_type: accountData.accountType
     });
-    store.accounts.push(newAccount);
-    return newAccount;
+    const { _id, ...accountRecord } = newAccount.toObject();
+    return accountRecord;
   }
 
-  update(accountId: string | number, accountData: { userId?: number; accountType?: string }): Account | null {
-    const account = this.findById(accountId);
-    if (!account) {
-      return null;
-    }
-
-    if (accountData.userId !== undefined) {
-      account.user_id = accountData.userId;
-    }
-    if (accountData.accountType !== undefined) {
-      account.account_type = accountData.accountType;
-    }
-    return account;
+  async update(accountId: string | number, accountData: { userId?: number; accountType?: string }): Promise<AccountRecord | null> {
+    const updates = {
+      ...(accountData.userId !== undefined ? { user_id: accountData.userId } : {}),
+      ...(accountData.accountType !== undefined ? { account_type: accountData.accountType } : {})
+    };
+    return await AccountModel.findOneAndUpdate(
+      { account_id: Number(accountId) },
+      { $set: updates },
+      { new: true, runValidators: true }
+    ).select("-_id").lean().exec() as AccountRecord | null;
   }
 
-  delete(accountId: string | number): Account | null {
-    const index = store.accounts.findIndex(account => account.account_id === Number(accountId));
-    if (index === -1) {
-      return null;
-    }
-    return store.accounts.splice(index, 1)[0];
+  async delete(accountId: string | number, session?: ClientSession): Promise<AccountRecord | null> {
+    const query = AccountModel.findOneAndDelete({ account_id: Number(accountId) }).select("-_id");
+    if (session) query.session(session);
+    return await query.lean().exec() as AccountRecord | null;
   }
 
-  updateBalance(accountId: string | number, newBalance: number): Account | null {
-    const account = this.findById(accountId);
-    if (account) {
-      account.balance = parseFloat(newBalance.toFixed(2));
-    }
-    return account;
+  async adjustBalance(accountId: string | number, amount: number, session: ClientSession): Promise<AccountRecord | null> {
+    const filter = { account_id: Number(accountId), ...(amount < 0 ? { balance: { $gte: -amount } } : {}) };
+    return await AccountModel.findOneAndUpdate(
+      filter,
+      { $inc: { balance: amount } },
+      { new: true, session }
+    ).select("-_id").lean().exec() as AccountRecord | null;
   }
 }
 

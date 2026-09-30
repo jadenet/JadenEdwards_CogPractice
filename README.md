@@ -2,7 +2,7 @@
 
 A TypeScript Express API for managing users and bank accounts. This project provides a simple backend for creating customers, opening accounts, updating account information, processing deposits and withdrawals, and tracking transaction history.
 
-The service uses in-memory persistence and includes Swagger documentation for exploring the available endpoints.
+The service stores users, accounts, and transactions in MongoDB Atlas and includes Swagger documentation for exploring the available endpoints.
 
 ## Overview
 
@@ -20,6 +20,7 @@ This backend supports the core banking workflow:
 - Node.js
 - TypeScript
 - Express
+- MongoDB Atlas with Mongoose
 - Swagger UI
 - Swagger JSDoc
 
@@ -70,6 +71,14 @@ Before running the project, make sure you have:
    ```
 
 ## Run the Project
+
+### Configure MongoDB Atlas
+
+1. Create an Atlas database user and allow your development IP address under **Network Access**.
+2. Copy the connection string from Atlas and replace the placeholders in `bankapp-node-api-backend/.env.example` with your cluster, database, username, and password.
+3. Save the configured file as `bankapp-node-api-backend/.env`. The `.env` file is ignored by Git.
+
+If the password contains reserved URI characters, percent-encode them in the connection string. The server connects to MongoDB before listening for requests. Atlas supports the transactions used to keep balance changes and transaction records consistent.
 
 ### Development mode
 

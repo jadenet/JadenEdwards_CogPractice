@@ -1,0 +1,4 @@
+$kind: http-request
+url: http://localhost:5000/api/accounts/1
+method: DELETE
+order: 4416768710567704

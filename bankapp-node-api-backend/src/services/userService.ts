@@ -5,8 +5,8 @@ class UserService {
     return userRepo.findAll();
   }
 
-  getUserById(userId: string | number) {
-    const user = userRepo.findById(userId);
+  async getUserById(userId: string | number) {
+    const user = await userRepo.findById(userId);
     if (!user) {
       throw new Error("User not found");
     }
@@ -17,16 +17,16 @@ class UserService {
     return userRepo.save(userData);
   }
 
-  editUser(userId: string | number, userData: { name?: string; email?: string }) {
-    const user = userRepo.update(userId, userData);
+  async editUser(userId: string | number, userData: { name?: string; email?: string }) {
+    const user = await userRepo.update(userId, userData);
     if (!user) {
       throw new Error("User not found");
     }
     return user;
   }
 
-  deleteUser(userId: string | number) {
-    const user = userRepo.delete(userId);
+  async deleteUser(userId: string | number) {
+    const user = await userRepo.delete(userId);
     if (!user) {
       throw new Error("User not found");
     }

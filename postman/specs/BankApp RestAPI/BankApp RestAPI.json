@@ -1,0 +1,237 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "BankApp RestAPI",
+    "version": "1.0.0",
+    "description": ""
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000"
+    }
+  ],
+  "paths": {
+    "/api/accounts/1": {
+      "get": {
+        "summary": "Get an account",
+        "responses": {},
+        "tags": [
+          "Account"
+        ]
+      },
+      "put": {
+        "summary": "Update an account",
+        "responses": {},
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "integer"
+                  },
+                  "accountType": {
+                    "type": "string"
+                  }
+                }
+              },
+              "example": {
+                "userId": 4,
+                "accountType": "SAVINGS"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete an account",
+        "responses": {},
+        "tags": [
+          "Account"
+        ]
+      }
+    },
+    "/api/accounts": {
+      "post": {
+        "summary": "Create an account",
+        "responses": {},
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "userId": {
+                    "type": "integer"
+                  },
+                  "accountType": {
+                    "type": "string"
+                  },
+                  "balance": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "example": {
+                "userId": 4,
+                "accountType": "CHECKING",
+                "balance": 100
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accounts/1/deposit": {
+      "post": {
+        "summary": "Deposit money into an account",
+        "responses": {},
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "example": {
+                "amount": 25
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accounts/1/withdraw": {
+      "post": {
+        "summary": "Withdraw money from an account",
+        "responses": {},
+        "tags": [
+          "Account"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "integer"
+                  }
+                }
+              },
+              "example": {
+                "amount": 25
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/accounts/1/transactions": {
+      "get": {
+        "summary": "New Request",
+        "responses": {},
+        "tags": [
+          "Account"
+        ]
+      }
+    },
+    "/api/users": {
+      "get": {
+        "summary": "List users",
+        "responses": {},
+        "tags": [
+          "User"
+        ]
+      },
+      "post": {
+        "summary": "Create a user",
+        "responses": {},
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              },
+              "example": {
+                "name": "Alex Ray",
+                "email": "alex@example.com"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/users/1": {
+      "put": {
+        "summary": "Update a user",
+        "responses": {},
+        "tags": [
+          "User"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email"
+                  }
+                }
+              },
+              "example": {
+                "name": "Logan",
+                "email": "logan23@example.com"
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "summary": "Get a user",
+        "responses": {},
+        "tags": [
+          "User"
+        ]
+      },
+      "delete": {
+        "summary": "Delete a user",
+        "responses": {},
+        "tags": [
+          "User"
+        ]
+      }
+    }
+  }
+}

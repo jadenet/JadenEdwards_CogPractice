@@ -1,28 +1,26 @@
-import store from "../models/inMemoryStore";
-import Transaction, { type TransactionType } from "../models/transaction";
+import TransactionModel, { type TransactionRecord, type TransactionType } from "../models/transaction";
+import { nextNumericId } from "../models/counter";
+import type { ClientSession } from "mongoose";
 
 class TransactionRepository {
-  save(transactionData: { accountId: number; type: TransactionType; amount: number }): Transaction {
-    const newTxn = new Transaction({
-      txn_id: store.getNextTxnId(),
+  async save(transactionData: { accountId: number; type: TransactionType; amount: number }, session: ClientSession): Promise<TransactionRecord> {
+    const [newTxn] = await TransactionModel.create([{
+      txn_id: await nextNumericId("transaction"),
       account_id: Number(transactionData.accountId),
       txn_type: transactionData.type,
       amount: parseFloat(Number(transactionData.amount).toFixed(2))
-    });
-    store.transactions.push(newTxn);
-    return newTxn;
+    }], { session });
+    const { _id, ...transactionRecord } = newTxn.toObject();
+    return transactionRecord;
   }
 
-  findByAccountId(accountId: string | number): Transaction[] {
-    return store.transactions.filter(t => t.account_id === Number(accountId));
+  async findByAccountId(accountId: string | number): Promise<TransactionRecord[]> {
+    return await TransactionModel.find({ account_id: Number(accountId) })
+      .select("-_id").sort({ created_at: 1 }).lean().exec() as TransactionRecord[];
   }
 
-  deleteByAccountId(accountId: string | number): void {
-    for (let index = store.transactions.length - 1; index >= 0; index--) {
-      if (store.transactions[index].account_id === Number(accountId)) {
-        store.transactions.splice(index, 1);
-      }
-    }
+  async deleteByAccountId(accountId: string | number, session: ClientSession): Promise<void> {
+    await TransactionModel.deleteMany({ account_id: Number(accountId) }).session(session).exec();
   }
 }
 
