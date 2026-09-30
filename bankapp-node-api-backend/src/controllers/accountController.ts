@@ -3,7 +3,7 @@ import type { ParamsDictionary } from "express-serve-static-core";
 import accountService from "../services/accountService";
 
 interface CreateAccountBody {
-  userId: number | string;
+  userId: string;
   accountType: string;
   balance: number
 }
@@ -13,7 +13,7 @@ interface AmountBody {
 }
 
 interface UpdateAccountBody {
-  userId?: number | string;
+  userId?: string;
   accountType?: string;
 }
 
@@ -49,9 +49,8 @@ export async function editAccount(req: Request<{ id: string }, unknown, UpdateAc
   if (userId === undefined && accountType === undefined) {
     return res.status(400).json({ error: "At least one of userId or accountType is required" });
   }
-  if (userId !== undefined &&
-      (String(userId).trim() === "" || !Number.isInteger(Number(userId)) || Number(userId) <= 0)) {
-    return res.status(400).json({ error: "userId must be a positive integer" });
+  if (userId !== undefined && (typeof userId !== "string" || !userId.trim())) {
+    return res.status(400).json({ error: "userId must be a non-empty ID string" });
   }
   if (accountType !== undefined && (typeof accountType !== "string" || !accountType.trim())) {
     return res.status(400).json({ error: "accountType must be a non-empty string" });

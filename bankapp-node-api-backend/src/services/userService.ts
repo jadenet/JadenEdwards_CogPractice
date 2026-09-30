@@ -5,7 +5,7 @@ class UserService {
     return userRepo.findAll();
   }
 
-  async getUserById(userId: string | number) {
+  async getUserById(userId: string) {
     const user = await userRepo.findById(userId);
     if (!user) {
       throw new Error("User not found");
@@ -17,7 +17,7 @@ class UserService {
     return userRepo.save(userData);
   }
 
-  async editUser(userId: string | number, userData: { name?: string; email?: string }) {
+  async editUser(userId: string, userData: { name?: string; email?: string }) {
     const user = await userRepo.update(userId, userData);
     if (!user) {
       throw new Error("User not found");
@@ -25,7 +25,7 @@ class UserService {
     return user;
   }
 
-  async deleteUser(userId: string | number) {
+  async deleteUser(userId: string) {
     const user = await userRepo.delete(userId);
     if (!user) {
       throw new Error("User not found");
