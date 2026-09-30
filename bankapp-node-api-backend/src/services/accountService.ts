@@ -4,6 +4,20 @@ import txnRepo from "../repositories/transactionRepository";
 import userRepo from "../repositories/userRepository";
 
 class AccountService {
+  async getAccountsForUser(userId: string) {
+    const user = await userRepo.findById(userId);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const accounts = await accountRepo.findByUserId(userId);
+    return accounts.map((account) => ({
+      accountId: account.account_id,
+      userName: user.name,
+      balance: account.balance
+    }));
+  }
+
   async createAccount(userId: string, accountType: string, balance: number) {
     const user = await userRepo.findById(userId);
     if (!user) {

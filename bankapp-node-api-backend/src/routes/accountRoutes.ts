@@ -6,6 +6,33 @@ const router = express.Router();
 
 /**
  * @openapi
+ * /api/accounts/user/{userId}:
+ *   get:
+ *     summary: List accounts for a user
+ *     tags: [Accounts]
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         description: User profile identifier.
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Accounts owned by the user.
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: "#/components/schemas/AccountResponse"
+ *       404:
+ *         description: User was not found.
+ */
+router.get("/user/:userId", accountController.getAccountsForUser);
+
+/**
+ * @openapi
  * /api/accounts:
  *   post:
  *     summary: Create an account

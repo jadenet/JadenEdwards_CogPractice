@@ -21,6 +21,14 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "An unexpected error occurred";
 }
 
+export async function getAccountsForUser(req: Request<{ userId: string }>, res: Response) {
+  try {
+    return res.status(200).json(await accountService.getAccountsForUser(req.params.userId));
+  } catch (err) {
+    return res.status(404).json({ error: getErrorMessage(err) });
+  }
+}
+
 export async function createAccount(req: Request<ParamsDictionary, unknown, CreateAccountBody>, res: Response) {
   try {
     const { userId, accountType, balance } = req.body;

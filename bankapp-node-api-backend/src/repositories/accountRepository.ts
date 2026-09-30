@@ -2,6 +2,11 @@ import AccountModel, { toAccountRecord, type AccountRecord } from "../models/acc
 import type { ClientSession } from "mongoose";
 
 class AccountRepository {
+  async findByUserId(userId: string): Promise<AccountRecord[]> {
+    const accounts = await AccountModel.find({ user_id: userId }).sort({ _id: 1 }).lean().exec();
+    return accounts.map(toAccountRecord);
+  }
+
   async findById(accountId: string, session?: ClientSession): Promise<AccountRecord | null> {
     const query = AccountModel.findById(accountId);
     if (session) query.session(session);
