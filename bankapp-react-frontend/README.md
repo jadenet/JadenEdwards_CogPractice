@@ -1,87 +1,19 @@
-# Welcome to React Router!
+# ABC Bank
 
-A modern, production-ready template for building full-stack React applications using React Router.
+ABC Bank is a responsive React Router frontend for the Node REST API in `../bankapp-node-api-backend`. It uses Tailwind CSS 4 and shadcn/ui components.
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
+## Run locally
 
-## Features
+1. Configure `MONGODB_URI` in `../bankapp-node-api-backend/.env`.
+2. Start the API from `bankapp-node-api-backend` with `npm run dev`. It listens on port 5000 by default.
+3. Start this frontend with `npm run dev`. Vite serves it at `http://localhost:5173` and proxies `/api` requests to the backend.
 
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+On Windows PowerShell, use `npm.cmd` if the execution policy blocks `npm`.
 
-## Getting Started
+Set `VITE_API_BASE_URL` to a different API base path or URL when deploying outside the local Vite proxy. A cross-origin API must allow requests from the frontend origin.
 
-### Installation
+## Banking workflows
 
-Install the dependencies:
+The interface supports user creation, lookup, editing, listing, and deletion; account creation, lookup, editing, and deletion; deposits and withdrawals; and account transaction history. Account IDs are entered directly or saved in the current browser because the API does not provide an account-list endpoint.
 
-```bash
-npm install
-```
-
-### Development
-
-Start the development server with HMR:
-
-```bash
-npm run dev
-```
-
-Your application will be available at `http://localhost:5173`.
-
-## Building for Production
-
-Create a production build:
-
-```bash
-npm run build
-```
-
-## Deployment
-
-### Docker Deployment
-
-To build and run using Docker:
-
-```bash
-docker build -t my-app .
-
-# Run the container
-docker run -p 3000:3000 my-app
-```
-
-The containerized application can be deployed to any platform that supports Docker, including:
-
-- AWS ECS
-- Google Cloud Run
-- Azure Container Apps
-- Digital Ocean App Platform
-- Fly.io
-- Railway
-
-### DIY Deployment
-
-If you're familiar with deploying Node applications, the built-in app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-```
-├── package.json
-├── package-lock.json (or pnpm-lock.yaml, or bun.lockb)
-├── build/
-│   ├── client/    # Static assets
-│   └── server/    # Server-side code
-```
-
-## Styling
-
-This template comes with [Tailwind CSS](https://tailwindcss.com/) already configured for a simple default starting experience. You can use whatever CSS framework you prefer.
-
----
-
-Built with ❤️ using React Router.
+Build the production app with `npm run build` and check types with `npm run typecheck`.

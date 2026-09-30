@@ -1,15 +1,48 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+@theme inline {
+  --font-sans: "DM Sans", sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
 }
 
-html,
-body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+:root {
+  --background: #f5f5f4;
+  --foreground: #111827;
+  --card: #ffffff;
+  --card-foreground: #111827;
+  --primary: #194f40;
+  --primary-foreground: #ffffff;
+  --secondary: #dfece1;
+  --secondary-foreground: #294237;
+  --muted: #f3f4f6;
+  --muted-foreground: #6b7280;
+  --accent: #eaf2e8;
+  --accent-foreground: #194f40;
+  --destructive: #991b1b;
+  --border: #dfe7e1;
+  --input: #dfe7e1;
+  --ring: #789482;
+  --radius: 0.5rem;
 }
+
+* { box-sizing: border-box; }
+body { min-width: 320px; margin: 0; background: var(--background); color: var(--foreground); font-family: "DM Sans", sans-serif; }
+button { cursor: pointer; }
