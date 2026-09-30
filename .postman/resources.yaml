@@ -3,3 +3,10 @@ workspace:
 localResources:
   specs:
     - ../postman/specs/BankApp RestAPI/BankApp RestAPI.json
+cloudResources:
+  collections:
+    ../postman/collections/NodeRESTApiBackend: 58636543-15daa19d-13c8-4b55-b4fb-dab26122a118
+  specs:
+    ../postman/specs/BankApp RestAPI/BankApp RestAPI.json: 3e12aec3-ece3-48e5-9339-91737702b76a
+  globals:
+    ../postman/globals/workspace.globals.yaml: 0c71621b-89fc-48f2-8fad-719ce9db6ab9
