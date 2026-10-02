@@ -1,9 +1,49 @@
 import mongoose from "mongoose";
+import type { AccountRecord } from "../models/account";
+import type { TransactionRecord, TransactionType } from "../models/transaction";
 import accountRepo from "../repositories/accountRepository";
 import txnRepo from "../repositories/transactionRepository";
 import userRepo from "../repositories/userRepository";
 
+function toAccountResponse(account: AccountRecord, userName: string) {
+  return {
+    accountId: account.account_id,
+    userId: account.user_id,
+    userName,
+    accountType: account.account_type,
+    balance: account.balance
+  };
+}
+
+function toAdminTransaction(t: TransactionRecord) {
+  return {
+    transactionId: t.transaction_id,
+    accountId: t.account_id,
+    type: t.txn_type,
+    amount: t.amount,
+    date: t.created_at.toISOString()
+  };
+}
+
+function signedAmount(type: TransactionType, amount: number) {
+  return type === "DEPOSIT" ? amount : -amount;
+}
+
+function parseAmount(amount: number | string, label: string) {
+  const rounded = Math.round(Number(amount) * 100) / 100;
+  if (!Number.isFinite(rounded) || rounded <= 0) {
+    throw new Error(`${label} amount must be positive`);
+  }
+  return rounded;
+}
+
 class AccountService {
+  async getAllAccounts() {
+    const [accounts, users] = await Promise.all([accountRepo.findAll(), userRepo.findAll()]);
+    const names = new Map(users.map((user) => [user.user_id, user.name]));
+    return accounts.map((account) => toAccountResponse(account, names.get(account.user_id) ?? "Unknown"));
+  }
+
   async getAccountsForUser(userId: string) {
     const user = await userRepo.findById(userId);
     if (!user) {
@@ -11,12 +51,7 @@ class AccountService {
     }
 
     const accounts = await accountRepo.findByUserId(userId);
-    return accounts.map((account) => ({
-      accountId: account.account_id,
-      userId: account.user_id,
-      userName: user.name,
-      balance: account.balance
-    }));
+    return accounts.map((account) => toAccountResponse(account, user.name));
   }
 
   async createAccount(userId: string, accountType: string, balance: number) {
@@ -31,12 +66,7 @@ class AccountService {
       balance: balance
     });
 
-    return {
-      accountId: createdAccount.account_id,
-      userId: createdAccount.user_id,
-      userName: user.name,
-      balance: createdAccount.balance
-    };
+    return toAccountResponse(createdAccount, user.name);
   }
 
   async getAccount(accountId: string) {
@@ -48,12 +78,7 @@ class AccountService {
     const user = await userRepo.findById(account.user_id);
 
     // Formatted to match expected Account Response
-    return {
-      accountId: account.account_id,
-      userId: account.user_id,
-      userName: user ? user.name : "Unknown",
-      balance: account.balance
-    };
+    return toAccountResponse(account, user ? user.name : "Unknown");
   }
 
   async editAccount(accountId: string, accountData: { userId?: string; accountType?: string }) {
@@ -92,25 +117,20 @@ class AccountService {
     return accountResponse;
   }
 
-  deposit(accountId: string, amount: number | string) {
-    return this.recordMoneyMovement(accountId, amount, "DEPOSIT");
+  async deposit(accountId: string, amount: number | string) {
+    await this.recordMoneyMovement(accountId, amount, "DEPOSIT");
+    return this.getAccount(accountId);
   }
 
-  withdraw(accountId: string, amount: number | string) {
-    return this.recordMoneyMovement(accountId, amount, "WITHDRAW");
+  async withdraw(accountId: string, amount: number | string) {
+    await this.recordMoneyMovement(accountId, amount, "WITHDRAW");
+    return this.getAccount(accountId);
   }
 
-  private async recordMoneyMovement(accountId: string, amount: number | string, type: "DEPOSIT" | "WITHDRAW") {
-    const parsedAmount = Number(amount);
-    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      throw new Error(`${type === "DEPOSIT" ? "Deposit" : "Withdrawal"} amount must be positive`);
-    }
-    const roundedAmount = Math.round(parsedAmount * 100) / 100;
-    if (roundedAmount <= 0) {
-      throw new Error(`${type === "DEPOSIT" ? "Deposit" : "Withdrawal"} amount must be positive`);
-    }
-
-    const delta = type === "DEPOSIT" ? roundedAmount : -roundedAmount;
+  private async recordMoneyMovement(accountId: string, amount: number | string, type: TransactionType): Promise<TransactionRecord> {
+    const roundedAmount = parseAmount(amount, type === "DEPOSIT" ? "Deposit" : "Withdrawal");
+    const delta = signedAmount(type, roundedAmount);
+    let saved: TransactionRecord | null = null;
     const session = await mongoose.startSession();
     try {
       await session.withTransaction(async () => {
@@ -122,12 +142,12 @@ class AccountService {
           }
           throw new Error("Insufficient funds");
         }
-        await txnRepo.save({ accountId: account.account_id, type, amount: roundedAmount }, session);
+        saved = await txnRepo.save({ accountId: account.account_id, type, amount: roundedAmount }, session);
       });
     } finally {
       await session.endSession();
     }
-    return this.getAccount(accountId);
+    return saved!;
   }
 
   async getTransactions(accountId: string) {
@@ -144,6 +164,58 @@ class AccountService {
       amount: t.amount,
       date: t.created_at.toISOString()
     }));
+  }
+
+  async getAllTransactions() {
+    return (await txnRepo.findAll()).map(toAdminTransaction);
+  }
+
+  async createTransaction(accountId: string, type: TransactionType, amount: number | string) {
+    return toAdminTransaction(await this.recordMoneyMovement(accountId, amount, type));
+  }
+
+  async editTransaction(transactionId: string, data: { type?: TransactionType; amount?: number | string }) {
+    let updated: TransactionRecord | null = null;
+    await this.withTransactionSession(transactionId, async (existing, session) => {
+      const type = data.type ?? existing.txn_type;
+      const amount = data.amount !== undefined ? parseAmount(data.amount, "Transaction") : existing.amount;
+      const delta = Math.round((signedAmount(type, amount) - signedAmount(existing.txn_type, existing.amount)) * 100) / 100;
+      if (delta !== 0 && !await accountRepo.adjustBalance(existing.account_id, delta, session)) {
+        throw new Error("Insufficient funds for this change");
+      }
+      updated = await txnRepo.update(transactionId, { type, amount }, session);
+    });
+    return toAdminTransaction(updated!);
+  }
+
+  async deleteTransaction(transactionId: string) {
+    let deleted: TransactionRecord | null = null;
+    await this.withTransactionSession(transactionId, async (existing, session) => {
+      const reversal = -signedAmount(existing.txn_type, existing.amount);
+      if (!await accountRepo.adjustBalance(existing.account_id, reversal, session)) {
+        throw new Error("Insufficient funds to reverse this transaction");
+      }
+      deleted = await txnRepo.delete(transactionId, session);
+    });
+    return toAdminTransaction(deleted!);
+  }
+
+  private async withTransactionSession(
+    transactionId: string,
+    work: (existing: TransactionRecord, session: mongoose.ClientSession) => Promise<void>
+  ) {
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        const existing = await txnRepo.findById(transactionId, session);
+        if (!existing) {
+          throw new Error("Transaction not found");
+        }
+        await work(existing, session);
+      });
+    } finally {
+      await session.endSession();
+    }
   }
 }
 

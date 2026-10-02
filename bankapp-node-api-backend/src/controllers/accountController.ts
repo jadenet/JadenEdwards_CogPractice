@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type { ParamsDictionary } from "express-serve-static-core";
+import { isAdmin } from "../auth/passport";
 import accountService from "../services/accountService";
 
 interface CreateAccountBody {
@@ -21,6 +22,10 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : "An unexpected error occurred";
 }
 
+export async function getAllAccounts(_req: Request, res: Response) {
+  return res.status(200).json(await accountService.getAllAccounts());
+}
+
 export async function getAccountsForUser(req: Request<{ userId: string }>, res: Response) {
   try {
     return res.status(200).json(await accountService.getAccountsForUser(req.params.userId));
@@ -34,6 +39,9 @@ export async function createAccount(req: Request<ParamsDictionary, unknown, Crea
     const { userId, accountType, balance } = req.body;
     if (!userId || !accountType) {
       return res.status(400).json({ error: "userId and accountType are required" });
+    }
+    if (!isAdmin(req) && userId !== req.user!.user_id) {
+      return res.status(403).json({ error: "You can only open accounts for your own profile" });
     }
     const result = await accountService.createAccount(userId, accountType, balance);
     return res.status(201).json(result);
@@ -59,6 +67,9 @@ export async function editAccount(req: Request<{ id: string }, unknown, UpdateAc
   }
   if (userId !== undefined && (typeof userId !== "string" || !userId.trim())) {
     return res.status(400).json({ error: "userId must be a non-empty ID string" });
+  }
+  if (userId !== undefined && !isAdmin(req) && userId !== req.user!.user_id) {
+    return res.status(403).json({ error: "Only an admin can transfer account ownership" });
   }
   if (accountType !== undefined && (typeof accountType !== "string" || !accountType.trim())) {
     return res.status(400).json({ error: "accountType must be a non-empty string" });

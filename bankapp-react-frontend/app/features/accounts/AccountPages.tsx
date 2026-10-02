@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import type { Account, User } from "../../types/bank";
+import { fake, GenInput } from "../../components/FakeFields";
 
 export type AccountPageProps = {
   account: Account | null;
@@ -34,8 +35,8 @@ export function AccountCreatePage({ user, busy, onSubmit }: { user: User; busy: 
     <section className="card grid overflow-hidden border border-base-300 bg-base-100 md:grid-cols-2">
       <div className="bg-secondary p-5 sm:p-6"><p className="text-sm text-muted-foreground">New account for {user.name}</p><h2 className="mt-2 text-2xl font-semibold">A fresh start.</h2><p className="mt-2 text-sm text-muted-foreground">Choose an account type and opening balance.</p></div>
       <form className="grid content-center gap-4 p-5 sm:p-6" onSubmit={onSubmit}>
-        <label className="grid gap-2 text-sm font-medium">Account type<input className="input input-bordered w-full" name="accountType" placeholder="e.g. Everyday, Savings" required /></label>
-        <label className="grid gap-2 text-sm font-medium">Opening balance<input className="input input-bordered w-full" name="balance" type="number" min="0" step="0.01" defaultValue="0" /></label>
+        <label className="grid gap-2 text-sm font-medium">Account type<GenInput generate={fake.accountType} className="input input-bordered w-full" name="accountType" placeholder="e.g. Everyday, Savings" required /></label>
+        <label className="grid gap-2 text-sm font-medium">Opening balance<GenInput generate={fake.balance} className="input input-bordered w-full" name="balance" type="number" min="0" step="0.01" defaultValue="0" /></label>
         <div className="flex flex-wrap items-center justify-between gap-3"><span className="text-xs text-muted-foreground">Owned by {user.name}.</span><button className="btn btn-primary" disabled={busy}>{busy ? "Opening…" : "Open account"} ↗</button></div>
       </form>
     </section>
@@ -48,7 +49,7 @@ export function AccountDetailsPage({ account, editingAccount, setEditingAccount,
       <button className="btn btn-ghost btn-sm mb-3" onClick={onBack}>← Back to accounts</button>
       <div className="card overflow-hidden border border-base-300 bg-base-100">
         <div className="bg-primary p-5 text-primary-content sm:p-6">
-          <div className="flex items-center justify-between"><span className="text-xs font-medium text-primary-content/75">Bank account</span><button className="btn btn-ghost btn-square btn-sm text-primary-content hover:text-primary" onClick={() => setEditingAccount(!editingAccount)} aria-label="Edit account">✎</button></div>
+          <div className="flex items-center justify-between"><span className="text-xs font-medium text-primary-content/75">{account?.accountType || "Bank account"}</span><button className="btn btn-ghost btn-square btn-sm text-primary-content hover:text-primary" onClick={() => setEditingAccount(!editingAccount)} aria-label="Edit account">✎</button></div>
           <div className="mt-5 text-xs text-primary-content/75">Available balance</div>
           <div className="mt-1 text-4xl font-semibold">${account ? Number(account.balance).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "—"}</div>
           <div className="mt-4 flex justify-between gap-4 text-sm"><span>{account?.userName || "No account selected"}</span><span>••• {account?.accountId.slice(-6) || "------"}</span></div>
@@ -72,7 +73,7 @@ function AccountEditForm({ busy, onSave, onClose }: { busy: boolean; onSave: Acc
     <div className="card mt-3 border border-base-300 bg-base-100 p-4 sm:p-5">
       <form className="grid gap-4" onSubmit={onSave}>
         <div className="flex items-center justify-between"><strong>Update account</strong><button type="button" className="btn btn-ghost btn-square btn-sm" onClick={onClose} aria-label="Close">×</button></div>
-        <label className="grid gap-2 text-sm font-medium">New account type<input className="input input-bordered w-full" name="accountType" placeholder="Leave blank to keep current" /></label>
+        <label className="grid gap-2 text-sm font-medium">New account type<GenInput generate={fake.accountType} className="input input-bordered w-full" name="accountType" placeholder="Leave blank to keep current" /></label>
         <button className="btn btn-primary justify-self-start" disabled={busy}>Save account</button>
       </form>
     </div>

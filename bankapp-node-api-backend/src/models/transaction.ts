@@ -3,6 +3,7 @@ import { model, Schema, Types } from "mongoose";
 export type TransactionType = "DEPOSIT" | "WITHDRAW";
 
 export interface TransactionRecord {
+  transaction_id: string;
   account_id: string;
   txn_type: TransactionType;
   amount: number;
@@ -18,6 +19,7 @@ interface TransactionData {
 
 export function toTransactionRecord(transaction: TransactionData & { _id: Types.ObjectId }): TransactionRecord {
   return {
+    transaction_id: transaction._id.toString(),
     account_id: transaction.account_id.toString(),
     txn_type: transaction.txn_type,
     amount: transaction.amount,

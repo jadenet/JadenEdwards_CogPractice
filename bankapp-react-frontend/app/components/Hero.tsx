@@ -1,12 +1,15 @@
-export default function Hero({ onChooseProfile }: { onChooseProfile: () => void }) {
+export default function Hero({ onLogin, onSignup }: { onLogin: () => void; onSignup: () => void }) {
     return (
         <section className="hero relative isolate min-h-80 overflow-hidden rounded-lg border border-primary bg-primary text-primary-content shadow-sm sm:min-h-90">
             <div className="hero-content w-full max-w-none flex-col gap-0 p-0 md:flex-row">
             <div className="flex w-full flex-col items-start justify-center p-7 sm:p-10 lg:p-14 md:w-[55%]">
                 <span className="badge badge-outline border-primary-content/40 bg-primary-content/5 text-primary-content">Everyday banking</span>
                 <h2 className="mt-4 max-w-xl text-3xl font-semibold leading-tight sm:text-4xl lg:text-5xl">Everyday banking,<br /><span className="text-lime-300">in one place.</span></h2>
-                <p className="mt-4 max-w-md text-sm text-primary-content/80 sm:text-base">Choose a profile to see account balances and activity, or create a new one.</p>
-                <button className="btn btn-accent mt-6" onClick={onChooseProfile}>Choose a profile <span className="text-lg font-bold leading-none" aria-hidden="true">↗</span></button>
+                <p className="mt-4 max-w-md text-sm text-primary-content/80 sm:text-base">Log in to see account balances and activity, or sign up to get started.</p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                    <button className="btn btn-accent" onClick={onLogin}>Log in <span className="text-lg font-bold leading-none" aria-hidden="true">↗</span></button>
+                    <button className="btn btn-outline border-primary-content/40 text-primary-content hover:bg-primary-content hover:text-primary" onClick={onSignup}>Sign up</button>
+                </div>
             </div>
             <div className="relative flex min-h-55 w-full items-center justify-center overflow-hidden md:min-h-80 md:w-[45%]" aria-hidden="true">
                 <div className="absolute right-[16%] top-1/2 size-55 -translate-y-1/2 rounded-full border border-white/15 md:size-75" />

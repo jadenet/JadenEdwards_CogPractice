@@ -2,6 +2,15 @@ import AccountModel, { toAccountRecord, type AccountRecord } from "../models/acc
 import type { ClientSession } from "mongoose";
 
 class AccountRepository {
+  async findAll(): Promise<AccountRecord[]> {
+    const accounts = await AccountModel.find().sort({ _id: 1 }).lean().exec();
+    return accounts.map(toAccountRecord);
+  }
+
+  async deleteByUserId(userId: string, session: ClientSession): Promise<void> {
+    await AccountModel.deleteMany({ user_id: userId }).session(session).exec();
+  }
+
   async findByUserId(userId: string): Promise<AccountRecord[]> {
     const accounts = await AccountModel.find({ user_id: userId }).sort({ _id: 1 }).lean().exec();
     return accounts.map(toAccountRecord);

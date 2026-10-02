@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import type { User } from "../../types/bank";
+import { fake, GenInput } from "../../components/FakeFields";
 
 export type UserPageProps = {
   users: User[];
@@ -73,8 +74,8 @@ export function UserCreatePage({ busy, onSubmit }: Pick<UserPageProps, "busy" | 
     <section className="card grid overflow-hidden border border-base-300 bg-base-100 md:grid-cols-2">
       <div className="bg-secondary p-5 sm:p-6"><p className="text-sm text-muted-foreground">People first</p><h2 className="mt-2 text-2xl font-semibold">Every account starts with a person.</h2><p className="mt-2 text-sm text-muted-foreground">Add their details to create a bank profile.</p></div>
       <form className="grid content-center gap-4 p-5 sm:p-6" onSubmit={onSubmit}>
-        <label className="grid gap-2 text-sm font-medium">Full name<input className="input input-bordered w-full" name="name" placeholder="e.g. Alex Morgan" required /></label>
-        <label className="grid gap-2 text-sm font-medium">Email address<input className="input input-bordered w-full" name="email" type="email" placeholder="alex@example.com" required /></label>
+        <label className="grid gap-2 text-sm font-medium">Full name<GenInput generate={fake.name} className="input input-bordered w-full" name="name" placeholder="e.g. Alex Morgan" required /></label>
+        <label className="grid gap-2 text-sm font-medium">Email address<GenInput generate={fake.email} className="input input-bordered w-full" name="email" type="email" placeholder="alex@example.com" required /></label>
         <div className="flex flex-wrap items-center justify-end gap-3">
           <button className="btn btn-primary" disabled={busy}>{busy ? "Saving…" : "Create profile"} ↗</button>
         </div>
@@ -87,7 +88,7 @@ function UserEditForm({ user, busy, onSubmit, onDelete, onClose }: { user: User;
   return (
     <section className="card m-4 border border-base-300 bg-base-100 p-4"><form className="grid gap-4 sm:grid-cols-2" onSubmit={onSubmit}>
       <div className="flex items-center justify-between sm:col-span-2"><strong>Edit profile</strong><button type="button" className="btn btn-ghost btn-square btn-sm" onClick={onClose} aria-label="Close">×</button></div>
-      <label className="grid gap-2 text-sm font-medium">Full name<input className="input input-bordered w-full" name="name" defaultValue={user.name} required /></label><label className="grid gap-2 text-sm font-medium">Email address<input className="input input-bordered w-full" name="email" type="email" defaultValue={user.email} required /></label>
+      <label className="grid gap-2 text-sm font-medium">Full name<GenInput generate={fake.name} className="input input-bordered w-full" name="name" defaultValue={user.name} required /></label><label className="grid gap-2 text-sm font-medium">Email address<GenInput generate={fake.email} className="input input-bordered w-full" name="email" type="email" defaultValue={user.email} required /></label>
       <div className="flex gap-2 sm:col-span-2"><button className="btn btn-primary" disabled={busy}>Save changes</button><button type="button" className="btn btn-error" onClick={onDelete}>Delete</button></div>
     </form></section>
   );

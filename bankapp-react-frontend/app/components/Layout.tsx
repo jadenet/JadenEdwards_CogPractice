@@ -7,6 +7,9 @@ import Footer from "./Footer";
 
 const pageTitles = [
   { path: "/", crumb: "home", title: "Your money, in good company." },
+  { path: "/login", crumb: "log in", title: "Welcome back" },
+  { path: "/signup", crumb: "sign up", title: "Join ABC Bank" },
+  { path: "/admin", crumb: "admin", title: "Admin dashboard" },
   { path: "/users", crumb: "users", title: "People & profiles" },
   { path: "/users/new", crumb: "create user", title: "Create a user" },
   { path: "/users/:userId/accounts", crumb: "accounts", title: "Your accounts" },
@@ -100,7 +103,7 @@ export function Layout({ account, notice, error, loading, confirmation, onConfir
   );
 }
 
-function Toast({ message, isError, onDismiss }: { message: string; isError: boolean; onDismiss: () => void }) {
+export function Toast({ message, isError, onDismiss }: { message: string; isError: boolean; onDismiss: () => void }) {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

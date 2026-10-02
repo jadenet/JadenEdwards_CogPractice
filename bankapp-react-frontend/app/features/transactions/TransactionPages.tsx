@@ -1,5 +1,6 @@
 import type { FormEvent } from "react";
 import type { Account, Transaction } from "../../types/bank";
+import { fake, GenInput } from "../../components/FakeFields";
 
 export type TransactionPageProps = {
   transactions: Transaction[];
@@ -33,7 +34,7 @@ export function MoneyMovementPage({ direction, account, busy, onSubmit, onShowAc
         <h2 className="mt-1 text-2xl font-semibold">{isDeposit ? "Add money to your account" : "Take money out"}</h2>
         <p className="mt-2 text-sm text-muted-foreground">{account ? `Moving money for ${account.userName} · account ending ${account.accountId.slice(-6)}.` : "Select an account before moving money."}</p>
         <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={(event) => onSubmit(event, direction)}>
-          <label className="grid gap-2 text-sm font-medium sm:col-span-2">Amount<input className="input input-bordered w-full" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required /></label>
+          <label className="grid gap-2 text-sm font-medium sm:col-span-2">Amount<GenInput generate={fake.amount} className="input input-bordered w-full" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required /></label>
           <button className="btn btn-primary sm:col-span-2 sm:justify-self-start" disabled={busy || !account}>{busy ? "Working…" : isDeposit ? "Make deposit" : "Make withdrawal"} ↗</button>
         </form>
         <p className="mt-4 text-xs text-muted-foreground">{isDeposit ? "Deposits are added to your available balance immediately." : "Withdrawals are limited to your available balance."}</p>

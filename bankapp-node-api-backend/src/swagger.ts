@@ -20,6 +20,9 @@ const swaggerSpec = swaggerJsdoc({
       },
     ],
     components: {
+      securitySchemes: {
+        bearerAuth: { type: "http", scheme: "bearer", bearerFormat: "JWT" },
+      },
       schemas: {
         ErrorResponse: {
           type: "object",
@@ -98,6 +101,7 @@ const swaggerSpec = swaggerJsdoc({
         },
       },
     },
+    security: [{ bearerAuth: [] }],
   },
   apis: routeFiles,
 });

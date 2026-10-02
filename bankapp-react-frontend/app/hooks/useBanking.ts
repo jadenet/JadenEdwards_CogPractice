@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { SubmitEvent } from "react";
 import { useNavigate } from "react-router";
 import {
@@ -41,10 +41,6 @@ export function useBanking() {
     : pendingDeletion
       ? { title: "Close this account?", description: "This account and its transaction history will be permanently deleted.", confirmLabel: "Close account" }
       : null;
-
-  useEffect(() => {
-    void loadUsers();
-  }, []);
 
   async function run<T>(action: () => Promise<T>, success?: (result: T) => void, message?: string) {
     setPendingOperations((current) => current + 1);

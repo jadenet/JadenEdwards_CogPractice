@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
+import { homePathFor, useAuth } from "../hooks/useAuth";
 
 const primaryLinks = [
   { to: "/", label: "Home" },
@@ -9,6 +10,7 @@ const primaryLinks = [
 
 export default function Header() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const { pathname } = useLocation();
   const mobileMenuRef = useRef<HTMLDetailsElement>(null);
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
@@ -55,9 +57,21 @@ export default function Header() {
               ))}
             </ul>
           </details>
-          <button className="btn btn-primary btn-sm" onClick={() => navigate("/users")}>
-            Choose profile<span aria-hidden="true">↗</span>
-          </button>
+          {user ? (
+            <>
+              <button className="btn btn-primary btn-sm" onClick={() => navigate(homePathFor(user))}>
+                {user.role === "admin" ? "Admin dashboard" : "My accounts"}<span aria-hidden="true">↗</span>
+              </button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { logout(); navigate("/"); }}>Log out</button>
+            </>
+          ) : (
+            <>
+              <button className="btn btn-ghost btn-sm" onClick={() => navigate("/login")}>Log in</button>
+              <button className="btn btn-primary btn-sm" onClick={() => navigate("/signup")}>
+                Sign up<span aria-hidden="true">↗</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </header>

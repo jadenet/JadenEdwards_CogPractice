@@ -1,9 +1,12 @@
 import { useEffect } from "react";
-import { Route, Routes, useNavigate, useParams } from "react-router";
+import { Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router";
 import { Layout } from "./components/Layout";
+import { homePathFor, useAuth } from "./hooks/useAuth";
 import { useBanking } from "./hooks/useBanking";
 import { HomePage } from "./features/home/HomePage";
 import { AccountCreatePage, AccountDetailsPage, AccountListPage } from "./features/accounts/AccountPages";
+import { AdminDashboard } from "./features/admin/AdminDashboard";
+import { LoginPage, SignupPage } from "./features/auth/AuthPages";
 import { AboutPage, ContactPage } from "./features/info/InfoPages";
 import { TransactionHistoryPage, MoneyMovementPage } from "./features/transactions/TransactionPages";
 import { UserCreatePage, UserListPage } from "./features/users/UserPages";
@@ -12,6 +15,7 @@ type Banking = ReturnType<typeof useBanking>;
 
 export default function App() {
   const banking = useBanking();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const openCreateUser = () => {
     banking.setEditingUser(null);
@@ -30,35 +34,58 @@ export default function App() {
       onDismissAlert={banking.dismissAlert}
     >
       <Routes>
-        <Route index element={<HomePage onCreateUser={openCreateUser} onChooseProfile={() => navigate("/users")} />} />
-        <Route path="users" element={
-          <UserListPage
-            users={banking.users}
-            editingUser={banking.editingUser}
-            userId={banking.userId}
-            busy={banking.busy}
-            setUserId={banking.setUserId}
-            onFind={() => void banking.findUser()}
-            onRefresh={() => void banking.loadUsers()}
-            onCreate={openCreateUser}
-            onSelect={(user) => navigate(`/users/${user.user_id}/accounts`)}
-            onEdit={banking.setEditingUser}
-            onSubmit={banking.submitUser}
-            onDelete={(user) => void banking.deleteUser(user)}
-          />
-        } />
-        <Route path="users/new" element={<UserCreatePage busy={banking.busy} onSubmit={banking.submitUser} />} />
-        <Route path="users/:userId/accounts" element={<UserAccountsRoute banking={banking} />} />
-        <Route path="users/:userId/accounts/new" element={<CreateAccountRoute banking={banking} />} />
-        <Route path="accounts/:accountId" element={<AccountDetailsRoute banking={banking} />} />
-        <Route path="accounts/:accountId/deposit" element={<MoneyMovementRoute banking={banking} direction="deposit" />} />
-        <Route path="accounts/:accountId/withdraw" element={<MoneyMovementRoute banking={banking} direction="withdraw" />} />
-        <Route path="accounts/:accountId/transactions" element={<TransactionsRoute banking={banking} />} />
+        <Route index element={<HomePage onLogin={() => navigate("/login")} onSignup={() => navigate("/signup")} />} />
+        <Route path="login" element={user ? <Navigate to={homePathFor(user)} replace /> : <LoginPage />} />
+        <Route path="signup" element={user ? <Navigate to={homePathFor(user)} replace /> : <SignupPage />} />
+        <Route element={<RequireAuth adminOnly />}>
+          <Route path="admin" element={<AdminDashboard currentUserId={user?.user_id ?? ""} />} />
+          <Route path="users" element={<UsersRoute banking={banking} onCreate={openCreateUser} />} />
+          <Route path="users/new" element={<UserCreatePage busy={banking.busy} onSubmit={banking.submitUser} />} />
+        </Route>
+        <Route element={<RequireAuth />}>
+          <Route path="users/:userId/accounts" element={<UserAccountsRoute banking={banking} />} />
+          <Route path="users/:userId/accounts/new" element={<CreateAccountRoute banking={banking} />} />
+          <Route path="accounts/:accountId" element={<AccountDetailsRoute banking={banking} />} />
+          <Route path="accounts/:accountId/deposit" element={<MoneyMovementRoute banking={banking} direction="deposit" />} />
+          <Route path="accounts/:accountId/withdraw" element={<MoneyMovementRoute banking={banking} direction="withdraw" />} />
+          <Route path="accounts/:accountId/transactions" element={<TransactionsRoute banking={banking} />} />
+        </Route>
         <Route path="about" element={<AboutPage onNavigate={navigate} />} />
         <Route path="contact" element={<ContactPage onNavigate={navigate} />} />
         <Route path="*" element={<p className="text-sm text-muted-foreground">The requested page could not be found.</p>} />
       </Routes>
     </Layout>
+  );
+}
+
+function RequireAuth({ adminOnly = false }: { adminOnly?: boolean }) {
+  const { user, ready } = useAuth();
+  const location = useLocation();
+  if (!ready) return null;
+  if (!user) return <Navigate to="/login" replace state={{ from: location.pathname }} />;
+  if (adminOnly && user.role !== "admin") return <Navigate to={homePathFor(user)} replace />;
+  return <Outlet />;
+}
+
+function UsersRoute({ banking, onCreate }: { banking: Banking; onCreate: () => void }) {
+  const navigate = useNavigate();
+  useEffect(() => { void banking.loadUsers(); }, []);
+
+  return (
+    <UserListPage
+      users={banking.users}
+      editingUser={banking.editingUser}
+      userId={banking.userId}
+      busy={banking.busy}
+      setUserId={banking.setUserId}
+      onFind={() => void banking.findUser()}
+      onRefresh={() => void banking.loadUsers()}
+      onCreate={onCreate}
+      onSelect={(user) => navigate(`/users/${user.user_id}/accounts`)}
+      onEdit={banking.setEditingUser}
+      onSubmit={banking.submitUser}
+      onDelete={(user) => void banking.deleteUser(user)}
+    />
   );
 }
 

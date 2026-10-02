@@ -1,8 +1,21 @@
 
 import express from "express";
+import { requireAccountAccess, requireAdmin, requireAuth, requireSelfOrAdmin } from "../auth/passport";
 import * as accountController from "../controllers/accountController";
 
 const router = express.Router();
+
+/**
+ * @openapi
+ * /api/accounts:
+ *   get:
+ *     summary: List all accounts (admin)
+ *     tags: [Accounts]
+ *     responses:
+ *       200:
+ *         description: All accounts.
+ */
+router.get("/", requireAdmin, accountController.getAllAccounts);
 
 /**
  * @openapi
@@ -29,7 +42,7 @@ const router = express.Router();
  *       404:
  *         description: User was not found.
  */
-router.get("/user/:userId", accountController.getAccountsForUser);
+router.get("/user/:userId", requireSelfOrAdmin("userId"), accountController.getAccountsForUser);
 
 /**
  * @openapi
@@ -57,7 +70,7 @@ router.get("/user/:userId", accountController.getAccountsForUser);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.post("/", accountController.createAccount);
+router.post("/", requireAuth, accountController.createAccount);
 
 /**
  * @openapi
@@ -87,7 +100,7 @@ router.post("/", accountController.createAccount);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.get("/:id", accountController.getAccount);
+router.get("/:id", requireAccountAccess, accountController.getAccount);
 
 /**
  * @openapi
@@ -129,7 +142,7 @@ router.get("/:id", accountController.getAccount);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.put("/:id", accountController.editAccount);
+router.put("/:id", requireAccountAccess, accountController.editAccount);
 
 /**
  * @openapi
@@ -159,7 +172,7 @@ router.put("/:id", accountController.editAccount);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.delete("/:id", accountController.deleteAccount);
+router.delete("/:id", requireAccountAccess, accountController.deleteAccount);
 
 /**
  * @openapi
@@ -195,7 +208,7 @@ router.delete("/:id", accountController.deleteAccount);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.post("/:id/deposit", accountController.deposit);
+router.post("/:id/deposit", requireAccountAccess, accountController.deposit);
 
 /**
  * @openapi
@@ -231,7 +244,7 @@ router.post("/:id/deposit", accountController.deposit);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.post("/:id/withdraw", accountController.withdraw);
+router.post("/:id/withdraw", requireAccountAccess, accountController.withdraw);
 
 /**
  * @openapi
@@ -263,6 +276,6 @@ router.post("/:id/withdraw", accountController.withdraw);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.get("/:id/transactions", accountController.getTransactions);
+router.get("/:id/transactions", requireAccountAccess, accountController.getTransactions);
 
 export default router;

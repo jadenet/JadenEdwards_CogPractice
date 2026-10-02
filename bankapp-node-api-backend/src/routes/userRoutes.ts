@@ -1,4 +1,5 @@
 import express from "express";
+import { requireAdmin, requireSelfOrAdmin } from "../auth/passport";
 import * as userController from "../controllers/userController";
 
 const router = express.Router();
@@ -19,7 +20,7 @@ const router = express.Router();
  *               items:
  *                 $ref: "#/components/schemas/User"
  */
-router.get("/", userController.getAllUsers);
+router.get("/", requireAdmin, userController.getAllUsers);
 
 /**
  * @openapi
@@ -49,7 +50,7 @@ router.get("/", userController.getAllUsers);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.get("/:id", userController.getUserById);
+router.get("/:id", requireSelfOrAdmin("id"), userController.getUserById);
 
 /**
  * @openapi
@@ -77,7 +78,7 @@ router.get("/:id", userController.getUserById);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.post("/", userController.addUser);
+router.post("/", requireAdmin, userController.addUser);
 
 /**
  * @openapi
@@ -119,7 +120,7 @@ router.post("/", userController.addUser);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.put("/:id", userController.editUser);
+router.put("/:id", requireSelfOrAdmin("id"), userController.editUser);
 
 /**
  * @openapi
@@ -149,6 +150,6 @@ router.put("/:id", userController.editUser);
  *             schema:
  *               $ref: "#/components/schemas/ErrorResponse"
  */
-router.delete("/:id", userController.deleteUser);
+router.delete("/:id", requireAdmin, userController.deleteUser);
 
 export default router;
