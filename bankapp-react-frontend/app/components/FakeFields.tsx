@@ -30,7 +30,6 @@ function GenerateButton({ label, onGenerate }: { label: string; onGenerate: () =
 
 export function GenInput({ generate, className = "", ...props }: InputHTMLAttributes<HTMLInputElement> & { generate: Generator }) {
   const ref = useRef<HTMLInputElement>(null);
-  if (!import.meta.env.DEV) return <input className={className} {...props} />;
 
   async function onGenerate() {
     const faker = await loadFaker();
@@ -47,7 +46,6 @@ export function GenInput({ generate, className = "", ...props }: InputHTMLAttrib
 
 export function GenSelect({ className = "", ...props }: SelectHTMLAttributes<HTMLSelectElement>) {
   const ref = useRef<HTMLSelectElement>(null);
-  if (!import.meta.env.DEV) return <select className={className} {...props} />;
 
   async function onGenerate() {
     const faker = await loadFaker();
