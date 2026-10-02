@@ -6,7 +6,6 @@ import transactionRoutes from "./routes/transactionRoutes";
 import userRoutes from "./routes/userRoutes";
 import swaggerUi from "swagger-ui-express";
 import swaggerSpec from "./swagger";
-import connectDatabase from "./utilities/database";
 import cors from "cors";
 
 
@@ -28,12 +27,12 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(async (req, res, next) => {
-  try {
-    await connectDatabase();
-    next();
-  } catch (err) {
-    res.status(500).json({ error: 'Database connection error' });
-  }
-});
+// app.use(async (req, res, next) => {
+//   try {
+//     await connectDatabase();
+//     next();
+//   } catch (err) {
+//     res.status(500).json({ error: 'Database connection error' });
+//   }
+// });
 export default app;
