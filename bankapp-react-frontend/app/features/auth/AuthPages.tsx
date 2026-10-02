@@ -50,6 +50,11 @@ export function LoginPage() {
     <AuthCard eyebrow="Welcome back" heading="Log in to ABC Bank." blurb="Sign in to see your balances, move money and review activity.">
       <form className="grid content-center gap-4 p-6 sm:p-8" onSubmit={onSubmit}>
         {error && <div role="alert" className="alert alert-error text-sm">{error}</div>}
+        <div className="rounded border border-base-300 bg-base-200 p-3 text-sm">
+          <p className="font-semibold">Example logins</p>
+          <p>Username: <code>alex123</code> / Password: <code>password123</code></p>
+          <p>Username: <code>admin</code> / Password: <code>admin</code></p>
+        </div>
         <label className="grid gap-2 text-sm font-medium">Username<GenInput generate={fake.username} className="input input-bordered w-full" name="username" autoComplete="username" required /></label>
         <label className="grid gap-2 text-sm font-medium">Password<GenInput generate={fake.password} className="input input-bordered w-full" name="password" type="password" autoComplete="current-password" required /></label>
         <button className="btn btn-primary" disabled={busy}>{busy ? "Logging in…" : "Log in"}</button>
