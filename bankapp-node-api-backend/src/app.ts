@@ -24,6 +24,7 @@ app.use("/api/transactions", transactionRoutes);
 app.use(cors({
   origin: 'https://d1gln353xtra0u.cloudfront.net/', // or '*'
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true
 }));
 

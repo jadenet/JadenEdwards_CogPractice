@@ -48,7 +48,7 @@ router.post("/register", authController.register);
  *               password: { type: string }
  *     responses:
  *       200:
- *         description: Logged in. Returns { token, user }; send the token as "Authorization: Bearer <token>".
+ *         description: 'Logged in. Returns { token, user }; send the token as "Authorization: Bearer <token>".'
  *       401:
  *         description: Invalid credentials.
  */
