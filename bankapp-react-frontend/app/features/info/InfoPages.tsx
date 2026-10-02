@@ -1,48 +1,83 @@
-import { API_BASE } from "../../lib/api";
-import type { Page } from "../../types/bank";
-import { ApiRow } from "../../components/BankUi";
-import { Alert } from "../../components/ui/alert";
-import { Button } from "../../components/ui/button";
-import { Card } from "../../components/ui/card";
-
-export function AboutPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
+export function AboutPage({ onNavigate }: { onNavigate: (path: string) => void }) {
   return (
-    <section className="max-w-3xl">
-      <p className="text-sm text-muted-foreground">A good banking partner</p>
-      <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Big on the things that matter.</h2>
-      <p className="mt-4 max-w-xl text-muted-foreground">ABC Bank makes everyday money management feel a little more human. Create profiles, open accounts, and move money with clear, straightforward tools.</p>
-      <div className="my-6 grid gap-3 sm:grid-cols-3">{["People at the center", "Simple by design", "Your money, your call"].map((fact, index) => <Card key={fact} className="p-4"><strong className="text-lg">0{index + 1}</strong><p className="mt-1 text-sm text-muted-foreground">{fact}</p></Card>)}</div>
-      <Button onClick={() => onNavigate("users")}>Choose a profile ↗</Button>
-    </section>
-  );
-}
-
-export function ContactPage({ onNavigate }: { onNavigate: (page: Page) => void }) {
-  return (
-    <section className="grid gap-4 lg:grid-cols-2">
-      <Card className="p-6 sm:p-8"><p className="text-sm text-muted-foreground">Real people, real help</p><h2 className="mt-2 text-3xl font-semibold">Let's talk money.</h2><p className="mt-3 text-sm text-muted-foreground">Questions about an account or need a hand finding your way around? We're here for you.</p><a className="mt-5 inline-flex font-medium text-primary underline-offset-4 hover:underline" href="mailto:hello@abcbank.example">hello@abcbank.example ↗</a><p className="mt-2 text-xs text-muted-foreground">Mon–Fri, 8am–6pm · Sat, 9am–1pm</p></Card>
-      <Card className="flex flex-col items-start justify-center bg-secondary p-6 sm:p-8"><p className="text-lg font-medium">“Good support should feel like a conversation, not a maze.”</p><p className="mt-3 text-xs text-muted-foreground">THE ABC BANK PROMISE</p><Button className="mt-5" variant="outline" onClick={() => onNavigate("data")}>Explore the data page ↗</Button></Card>
-    </section>
-  );
-}
-
-export function DataPage({ onNavigate, onTestConnection }: { onNavigate: (page: Page) => void; onTestConnection: () => void }) {
-  return (
-    <Card className="p-5 sm:p-6">
-      <div><p className="text-sm text-muted-foreground">Connected to your bank</p><h2 className="mt-1 text-2xl font-semibold">Useful API endpoints</h2><p className="mt-1 text-sm text-muted-foreground">Every action below talks directly to the ABC Bank backend.</p></div>
-      <Alert className="my-5 items-center"><span className="size-2 rounded-full bg-green-600" /><span className="flex-1 text-sm">API connection · <span className="text-muted-foreground">{API_BASE}</span></span><Button variant="outline" size="sm" onClick={onTestConnection}>Test connection ↻</Button></Alert>
-      <div>
-        <ApiRow method="GET" path="/users" description="List all users" onClick={() => onNavigate("users")} />
-        <ApiRow method="POST" path="/users" description="Create a user profile" onClick={() => onNavigate("create-user")} />
-        <ApiRow method="GET · PUT · DELETE" path="/users/:id" description="Find, update, or remove a user" onClick={() => onNavigate("users")} />
-        <ApiRow method="GET" path="/accounts/user/:userId" description="List accounts for a profile" />
-        <ApiRow method="POST" path="/accounts" description="Open an account for a profile" />
-        <ApiRow method="GET · PUT · DELETE" path="/accounts/:id" description="Read, update, or close an account" />
-        <ApiRow method="POST" path="/accounts/:id/deposit" description="Deposit money" />
-        <ApiRow method="POST" path="/accounts/:id/withdraw" description="Withdraw money" />
-        <ApiRow method="GET" path="/accounts/:id/transactions" description="View transaction history" />
+    <section>
+      <div className="grid gap-5 border-b border-base-300 pb-8 md:grid-cols-[1fr_1.15fr] md:gap-12 md:pb-10">
+        <div>
+          <p className="text-xs font-semibold uppercase text-primary">About ABC Bank</p>
+          <h2 className="mt-3 max-w-lg text-3xl font-semibold leading-tight sm:text-4xl">Banking for the everyday.</h2>
+        </div>
+        <div className="max-w-2xl md:pt-5">
+          <p className="text-base leading-7">Money is part of daily life. We believe managing it should feel clear, useful, and within reach.</p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">ABC Bank brings everyday banking tasks together in one place, from choosing a profile and viewing accounts to making deposits and withdrawals.</p>
+          <button className="btn btn-primary mt-5" onClick={() => onNavigate("/users")}>Explore your accounts <span aria-hidden="true">↗</span></button>
+        </div>
       </div>
-      <p className="mt-4 text-xs text-muted-foreground">Choose a profile to view and manage its accounts.</p>
-    </Card>
+
+      <div className="mt-8 grid gap-6 md:grid-cols-[0.7fr_1.3fr] md:gap-12">
+        <div>
+          <p className="text-xs font-semibold uppercase text-muted-foreground">What guides us</p>
+          <h3 className="mt-2 text-xl font-semibold">A clear approach to banking.</h3>
+        </div>
+        <div className="divide-y divide-base-300 border-y border-base-300">
+          <article className="grid gap-2 py-5 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
+            <h4 className="text-sm font-semibold">Put people first</h4>
+            <p className="text-sm leading-5 text-muted-foreground">Make common banking tasks easier to find and simpler to complete.</p>
+          </article>
+          <article className="grid gap-2 py-5 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
+            <h4 className="text-sm font-semibold">Keep it clear</h4>
+            <p className="text-sm leading-5 text-muted-foreground">Present account information and money movement in a straightforward way.</p>
+          </article>
+          <article className="grid gap-2 py-5 sm:grid-cols-[1fr_1.4fr] sm:gap-8">
+            <h4 className="text-sm font-semibold">Give you control</h4>
+            <p className="text-sm leading-5 text-muted-foreground">Keep the tools you need close at hand, so you can manage your accounts on your terms.</p>
+          </article>
+        </div>
+      </div>
+    </section>
   );
 }
+
+export function ContactPage({ onNavigate }: { onNavigate: (path: string) => void }) {
+  return (
+    <section>
+      <div className="grid gap-3 border-b border-base-300 pb-6 sm:grid-cols-[1fr_1.3fr] sm:gap-8 sm:pb-8">
+        <div>
+          <p className="text-xs font-semibold uppercase text-primary">Contact ABC Bank</p>
+          <h2 className="mt-3 text-3xl font-semibold leading-tight sm:text-4xl">How can we help?</h2>
+        </div>
+        <p className="max-w-xl text-sm leading-6 text-muted-foreground sm:pt-5">For questions about your accounts or help using our banking tools, get in touch by email. You can also find your profile and account information online.</p>
+      </div>
+
+      <div className="grid gap-8 pt-7 md:grid-cols-[1.3fr_0.7fr] md:gap-12 md:pt-9">
+        <div>
+          <h3 className="text-lg font-semibold">Email support</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Send us a message and our team will be in touch.</p>
+          <a className="mt-4 inline-flex items-center gap-2 text-base font-semibold text-primary underline-offset-4 hover:underline" href="mailto:hello@abcbank.example">hello@abcbank.example <span aria-hidden="true">↗</span></a>
+          <div className="mt-7 border-t border-base-300 pt-5">
+            <div>
+              <p className="text-xs font-semibold uppercase text-muted-foreground">Business hours</p>
+              <p className="mt-2 text-sm">Monday–Friday, 8am–6pm</p>
+              <p className="mt-1 text-sm">Saturday, 9am–1pm</p>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <h3 className="text-lg font-semibold">Online banking</h3>
+          <p className="mt-1 text-sm text-muted-foreground">Go straight to the tools you need.</p>
+          <div className="mt-4 divide-y divide-base-300 border-y border-base-300">
+            <button className="group flex w-full items-center justify-between gap-4 py-4 text-left" onClick={() => onNavigate("/users")}>
+              <span><strong className="block text-sm font-semibold">Profiles and accounts</strong><span className="mt-1 block text-sm text-muted-foreground">Find a profile or review account details.</span></span>
+              <span className="text-lg text-primary transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+            </button>
+            <button className="group flex w-full items-center justify-between gap-4 py-4 text-left" onClick={() => onNavigate("/about")}>
+              <span><strong className="block text-sm font-semibold">About ABC Bank</strong><span className="mt-1 block text-sm text-muted-foreground">Learn about our approach to everyday banking.</span></span>
+              <span className="text-lg text-primary transition-transform group-hover:translate-x-1" aria-hidden="true">→</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+

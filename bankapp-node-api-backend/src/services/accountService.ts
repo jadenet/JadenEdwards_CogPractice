@@ -13,6 +13,7 @@ class AccountService {
     const accounts = await accountRepo.findByUserId(userId);
     return accounts.map((account) => ({
       accountId: account.account_id,
+      userId: account.user_id,
       userName: user.name,
       balance: account.balance
     }));
@@ -32,6 +33,7 @@ class AccountService {
 
     return {
       accountId: createdAccount.account_id,
+      userId: createdAccount.user_id,
       userName: user.name,
       balance: createdAccount.balance
     };
@@ -48,6 +50,7 @@ class AccountService {
     // Formatted to match expected Account Response
     return {
       accountId: account.account_id,
+      userId: account.user_id,
       userName: user ? user.name : "Unknown",
       balance: account.balance
     };
@@ -139,7 +142,7 @@ class AccountService {
     return history.map(t => ({
       type: t.txn_type,
       amount: t.amount,
-      date: t.created_at.toISOString().split("T")[0]
+      date: t.created_at.toISOString()
     }));
   }
 }
