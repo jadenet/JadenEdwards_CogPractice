@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { SubmitEvent } from "react";
+import type { FormEvent } from "react";
 import { useNavigate } from "react-router";
 import {
   createAccount as createAccountRequest,
@@ -95,7 +95,7 @@ export function useBanking() {
     await run(() => getUser(id.trim()), setEditingUser, "User found.");
   }
 
-  async function submitUser(event: SubmitEvent<HTMLFormElement>) {
+  async function submitUser(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
@@ -128,7 +128,7 @@ export function useBanking() {
     setAccounts((current) => [next, ...current.filter((item) => item.accountId !== next.accountId)]);
   }
 
-  async function submitAccount(event: SubmitEvent<HTMLFormElement>) {
+  async function submitAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedUser) return setError("Choose a profile before opening an account.");
     const form = event.currentTarget;
@@ -145,7 +145,7 @@ export function useBanking() {
     if (result) form.reset();
   }
 
-  async function saveAccount(event: SubmitEvent<HTMLFormElement>) {
+  async function saveAccount(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!account) return;
     const data = new FormData(event.currentTarget);
@@ -194,7 +194,7 @@ export function useBanking() {
     setPendingDeletion(null);
   }
 
-  async function moveMoney(event: SubmitEvent<HTMLFormElement>, direction: "deposit" | "withdraw") {
+  async function moveMoney(event: FormEvent<HTMLFormElement>, direction: "deposit" | "withdraw") {
     event.preventDefault();
     const form = event.currentTarget;
     const data = new FormData(form);
