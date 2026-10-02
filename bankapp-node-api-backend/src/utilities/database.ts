@@ -6,6 +6,9 @@ export default async function connectDatabase(): Promise<void> {
     throw new Error("MONGODB_URI is not set. Add your MongoDB Atlas URI to the backend .env file.");
   }
 
-  await mongoose.connect(connectionString);
+  await mongoose.connect(connectionString, {
+    maxPoolSize: 5,
+    serverSelectionTimeoutMS: 5000,
+  });
   console.log("Connected to MongoDB Atlas");
 }
