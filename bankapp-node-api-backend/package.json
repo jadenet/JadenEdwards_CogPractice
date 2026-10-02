@@ -6,8 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch server.ts",
-    "seed": "tsx scripts/seed.ts",
-    "seed:reset": "tsx scripts/seed.ts --reset",
     "build": "tsc",
     "start": "node dist/server.js"
   },
@@ -27,7 +25,6 @@
     "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
-    "@faker-js/faker": "^10.6.0",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.3",
