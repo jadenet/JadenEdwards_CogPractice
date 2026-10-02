@@ -1,7 +1,0 @@
-$kind: http-request
-url: http://localhost:5000/api/accounts/1/deposit
-method: POST
-body:
-  type: json
-  content: "{\r\n    \"amount\": 25\r\n}"
-order: 4442894840818433

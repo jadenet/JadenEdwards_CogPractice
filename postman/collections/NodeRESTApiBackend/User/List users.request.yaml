@@ -1,6 +1,0 @@
-$kind: http-request
-name: List users
-description: ""
-url: http://localhost:5000/api/users
-method: GET
-order: 1790777150967
