@@ -1,4 +1,4 @@
 $kind: http-request
-url: http://localhost:5000/api/accounts/1
+order: 4000
 method: GET
-order: 1790777203322
+url: '{{baseUrl}}/api/accounts/{{accountId}}'

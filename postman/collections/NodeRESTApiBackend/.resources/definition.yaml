@@ -1,1 +1,23 @@
 $kind: collection
+name: NodeRESTApiBackend
+description: 'MongoDB-backed banking API. Register or log in first to populate token and userId. Admin-only requests require the seeded admin account or another admin token.'
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{token}}'
+variables:
+  - key: baseUrl
+    value: 'http://localhost:5000'
+  - key: token
+    value: ''
+  - key: userId
+    value: ''
+  - key: accountId
+    value: ''
+  - key: transactionId
+    value: ''
+  - key: adminUsername
+    value: admin
+  - key: adminPassword
+    value: admin

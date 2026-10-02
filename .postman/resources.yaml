@@ -1,8 +1,12 @@
 workspace:
-  id: 7a7b34ba-1877-4cb3-88cd-ec717b6f0599
+  id: 63ba8550-2436-4ed9-8c37-ed27fadd52cb
+
 localResources:
   specs:
     - ../postman/specs/BankApp RestAPI/BankApp RestAPI.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
 cloudResources:
   collections:
     ../postman/collections/NodeRESTApiBackend: 58636543-15daa19d-13c8-4b55-b4fb-dab26122a118

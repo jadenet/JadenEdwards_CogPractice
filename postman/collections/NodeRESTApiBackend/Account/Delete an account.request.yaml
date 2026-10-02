@@ -1,4 +1,5 @@
 $kind: http-request
-url: http://localhost:5000/api/accounts/1
+name: 'Delete an account (admin)'
+order: 6000
 method: DELETE
-order: 4416768710567704
+url: '{{baseUrl}}/api/accounts/{{accountId}}'

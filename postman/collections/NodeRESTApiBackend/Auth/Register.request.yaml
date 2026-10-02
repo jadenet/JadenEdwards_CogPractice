@@ -1,0 +1,23 @@
+$kind: http-request
+order: 1000
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "name": "{{$randomFullName}}",
+      "email": "register-{{$timestamp}}@example.com",
+      "username": "user_{{$timestamp}}",
+      "password": "Banking123!"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      const response = pm.response.json();
+      if (response.token) pm.collectionVariables.set('token', response.token);
+      if (response.user && response.user.user_id) pm.collectionVariables.set('userId', response.user.user_id);

@@ -1,270 +1,268 @@
 {
   "info": {
     "name": "NodeRESTApiBackend",
+    "description": "MongoDB-backed banking API. Register or log in first to populate token and userId. Admin-only requests require the seeded admin account or another admin token.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
   },
   "item": [
     {
-      "name": "User",
+      "name": "Auth",
       "item": [
         {
-          "name": "List users",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:5000/api/users",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "users"]
-            }
-          }
-        },
-        {
-          "name": "Create a user",
+          "name": "Register",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Alex Ray\",\r\n    \"email\": \"alex@example.com\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"name\": \"{{$randomFullName}}\",\n  \"email\": \"register-{{$timestamp}}@example.com\",\n  \"username\": \"user_{{$timestamp}}\",\n  \"password\": \"Banking123!\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": {
-              "raw": "http://localhost:5000/api/users",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "users"]
+            "url": "{{baseUrl}}/api/auth/register"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const response = pm.response.json();",
+                "if (response.token) pm.collectionVariables.set('token', response.token);",
+                "if (response.user && response.user.user_id) pm.collectionVariables.set('userId', response.user.user_id);"
+              ]
             }
-          }
+          }]
         },
         {
-          "name": "Get a user",
+          "name": "Log in",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{adminUsername}}\",\n  \"password\": \"{{adminPassword}}\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/auth/login"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const response = pm.response.json();",
+                "if (response.token) pm.collectionVariables.set('token', response.token);",
+                "if (response.user && response.user.user_id) pm.collectionVariables.set('userId', response.user.user_id);"
+              ]
+            }
+          }]
+        },
+        {
+          "name": "Get signed-in user",
           "request": {
             "method": "GET",
             "header": [],
-            "url": {
-              "raw": "http://localhost:5000/api/users/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "users", "1"]
-            }
-          }
-        },
-        {
-          "name": "Update a user",
-          "request": {
-            "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\r\n    \"name\": \"Logan\",\r\n    \"email\": \"logan23@example.com\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "http://localhost:5000/api/users/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "users", "1"]
-            }
-          }
-        },
-        {
-          "name": "Delete a user",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:5000/api/users/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "users", "1"]
-            }
+            "url": "{{baseUrl}}/api/auth/me"
           }
         }
       ]
     },
     {
-      "name": "Account",
+      "name": "Users",
       "item": [
         {
-          "name": "Get an account",
+          "name": "List users (admin)",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/users" }
+        },
+        {
+          "name": "Create a user (admin)",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:5000/api/accounts/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts", "1"]
-            }
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Ray\",\n  \"email\": \"alex-{{$timestamp}}@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/users"
           }
+        },
+        {
+          "name": "Get a user",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/users/{{userId}}" }
+        },
+        {
+          "name": "Update a user",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Alex Ray Updated\",\n  \"email\": \"alex-updated@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/users/{{userId}}"
+          }
+        },
+        {
+          "name": "Delete a user (admin)",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/users/{{userId}}" }
+        }
+      ]
+    },
+    {
+      "name": "Accounts",
+      "item": [
+        {
+          "name": "List all accounts (admin)",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/accounts" }
+        },
+        {
+          "name": "List accounts for a user",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/accounts/user/{{userId}}" }
         },
         {
           "name": "Create an account",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": 4,\r\n    \"accountType\": \"CHECKING\",\r\n    \"balance\": 100\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"userId\": \"{{userId}}\",\n  \"accountType\": \"CHECKING\",\n  \"balance\": 100\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": {
-              "raw": "http://localhost:5000/api/accounts",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts"]
+            "url": "{{baseUrl}}/api/accounts"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const response = pm.response.json();",
+                "if (response.accountId) pm.collectionVariables.set('accountId', response.accountId);"
+              ]
             }
-          }
+          }]
+        },
+        {
+          "name": "Get an account",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/accounts/{{accountId}}" }
         },
         {
           "name": "Update an account",
           "request": {
             "method": "PUT",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"userId\": 4,\r\n    \"accountType\": \"SAVINGS\"\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"accountType\": \"SAVINGS\"\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": {
-              "raw": "http://localhost:5000/api/accounts/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts", "1"]
-            }
+            "url": "{{baseUrl}}/api/accounts/{{accountId}}"
           }
         },
         {
-          "name": "Delete an account",
-          "request": {
-            "method": "DELETE",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:5000/api/accounts/1",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts", "1"]
-            }
-          }
+          "name": "Delete an account (admin)",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/accounts/{{accountId}}" }
         },
         {
-          "name": "Deposit money into an account",
+          "name": "Deposit money",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"amount\": 25\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"amount\": 25\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": {
-              "raw": "http://localhost:5000/api/accounts/1/deposit",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts", "1", "deposit"]
-            }
+            "url": "{{baseUrl}}/api/accounts/{{accountId}}/deposit"
           }
         },
         {
-          "name": "Withdraw money from an account",
+          "name": "Withdraw money",
           "request": {
             "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"amount\": 25\r\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
+              "raw": "{\n  \"amount\": 25\n}",
+              "options": { "raw": { "language": "json" } }
             },
-            "url": {
-              "raw": "http://localhost:5000/api/accounts/1/withdraw",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts", "1", "withdraw"]
-            }
+            "url": "{{baseUrl}}/api/accounts/{{accountId}}/withdraw"
           }
         },
         {
-          "name": "New Request",
+          "name": "List account transactions",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/accounts/{{accountId}}/transactions" }
+        }
+      ]
+    },
+    {
+      "name": "Transactions (admin)",
+      "item": [
+        {
+          "name": "List all transactions",
+          "request": { "method": "GET", "header": [], "url": "{{baseUrl}}/api/transactions" }
+        },
+        {
+          "name": "Create a transaction",
           "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "http://localhost:5000/api/accounts/1/transactions",
-              "protocol": "http",
-              "host": ["localhost"],
-              "port": "5000",
-              "path": ["api", "accounts", "1", "transactions"]
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"accountId\": \"{{accountId}}\",\n  \"type\": \"DEPOSIT\",\n  \"amount\": 25\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/transactions"
+          },
+          "event": [{
+            "listen": "test",
+            "script": {
+              "type": "text/javascript",
+              "exec": [
+                "const response = pm.response.json();",
+                "if (response.transactionId) pm.collectionVariables.set('transactionId', response.transactionId);"
+              ]
             }
+          }]
+        },
+        {
+          "name": "Update a transaction",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 30\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": "{{baseUrl}}/api/transactions/{{transactionId}}"
           }
+        },
+        {
+          "name": "Delete a transaction",
+          "request": { "method": "DELETE", "header": [], "url": "{{baseUrl}}/api/transactions/{{transactionId}}" }
         }
       ]
     }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "token", "value": "" },
+    { "key": "userId", "value": "" },
+    { "key": "accountId", "value": "" },
+    { "key": "transactionId", "value": "" },
+    { "key": "adminUsername", "value": "admin" },
+    { "key": "adminPassword", "value": "admin" }
   ]
 }

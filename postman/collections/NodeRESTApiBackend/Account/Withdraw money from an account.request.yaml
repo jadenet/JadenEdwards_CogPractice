@@ -1,7 +1,14 @@
 $kind: http-request
-url: http://localhost:5000/api/accounts/1/withdraw
+name: Withdraw money
+order: 8000
 method: POST
+url: '{{baseUrl}}/api/accounts/{{accountId}}/withdraw'
+headers:
+  - key: Content-Type
+    value: application/json
 body:
   type: json
-  content: "{\r\n    \"amount\": 25\r\n}"
-order: 4498740035515714
+  content: |-
+    {
+      "amount": 25
+    }
